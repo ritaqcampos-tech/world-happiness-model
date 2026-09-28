@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Makes Nations Happy? | Rita Campos</title>
+<meta name="description" content="A machine learning study of life satisfaction across 140+ countries, 2005 to 2024, by Rita Campos.">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#fcfcfb; --card:#ffffff; --line:#e6e5e1;
+  --ink:#0b0b0b; --ink-2:#52514e; --ink-3:#7a7974;
+  --accent:#2a78d6; --pos:#2a78d6; --neg:#e34948; --grid:#ecebe7; --mid:#b9b8b3;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#1a1a19; --card:#222220; --line:#353532;
+    --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#8f8e87;
+    --accent:#3987e5; --pos:#3987e5; --neg:#e66767; --grid:#2e2e2b; --mid:#5a5955;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#1a1a19; --card:#222220; --line:#353532;
+  --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#8f8e87;
+  --accent:#3987e5; --pos:#3987e5; --neg:#e66767; --grid:#2e2e2b; --mid:#5a5955;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:56px 16px 72px}
+.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 12px}
+h1{font-size:clamp(32px,6vw,48px);line-height:1.1;margin:0 0 16px;letter-spacing:-.02em}
+.lede{font-size:19px;color:var(--ink-2);margin:0 0 20px;max-width:640px}
+.byline{font-size:14px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+.byline a{color:var(--accent);text-decoration:none;font-weight:600}
+.byline a:hover{text-decoration:underline}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:40px 0 8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.stat b{display:block;font-size:28px;line-height:1.1;letter-spacing:-.01em}
+.stat span{font-size:13px;color:var(--ink-2)}
+section{margin-top:56px}
+h2{font-size:24px;line-height:1.25;margin:0 0 8px;letter-spacing:-.01em}
+section>p{color:var(--ink-2);margin:0 0 20px;max-width:680px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 20px 12px}
+.card h3{font-size:15px;margin:0 0 2px}
+.card .sub{font-size:13px;color:var(--ink-3);margin:0 0 12px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{font-family:inherit}
+.lbl{fill:var(--ink-2);font-size:13px}
+@media (max-width:640px){.lbl{font-size:11px}.card{padding:16px 12px 8px}}
+.val{fill:var(--ink);font-size:12px;font-variant-numeric:tabular-nums}
+.axis{stroke:var(--mid);stroke-width:1}
+.gridl{stroke:var(--grid);stroke-width:1}
+.bar{transition:opacity .15s}
+.bar:hover{opacity:.8}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--ink-2);margin:4px 0 8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.paradox{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.pcard .k{font-size:13px;color:var(--ink-2);margin-bottom:6px}
+.pcard .n{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.pcard .t{font-size:13px;color:var(--ink-3);margin-top:6px}
+.pcard .tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;margin-top:8px}
+.up{color:var(--pos)} .down{color:var(--neg)}
+.tag.up{background:color-mix(in srgb,var(--pos) 14%,transparent)}
+.tag.down{background:color-mix(in srgb,var(--neg) 14%,transparent)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+ul.clean{margin:0;padding-left:20px;color:var(--ink-2)}
+ul.clean li{margin-bottom:8px}
+ul.clean b{color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:13px;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:4px 12px;color:var(--ink-2)}
+footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);font-size:14px;color:var(--ink-3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+footer a{color:var(--accent);text-decoration:none}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;border-radius:6px;opacity:0;transition:opacity .1s;white-space:nowrap;z-index:9}
+details{margin-top:8px;font-size:13px;color:var(--ink-3)}
+details summary{cursor:pointer;padding:4px 0}
+details table{border-collapse:collapse;margin:6px 0 8px;font-variant-numeric:tabular-nums}
+details td{padding:2px 16px 2px 0;color:var(--ink-2)}
+@media (max-width:640px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .paradox,.cols{grid-template-columns:1fr}
+  .wrap{padding-top:40px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Economics &amp; Psychology Research Project</p>
+  <h1>What Makes Nations Happy?</h1>
+  <p class="lede">A machine learning study of life satisfaction in 140+ countries from 2005 to 2024, and a Simpson's paradox hiding in the link between inequality and happiness.</p>
+  <div class="byline">
+    <span>By <strong style="color:var(--ink)">Rita Campos</strong>, Northeastern University</span>
+    <a href="https://github.com/ritaqcampos-tech/world-happiness-model">View code on GitHub →</a>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>140+</b><span>countries analyzed</span></div>
+    <div class="stat"><b>1,964</b><span>country-year records</span></div>
+    <div class="stat"><b>0.68</b><span>R² on countries the model never saw</span></div>
+    <div class="stat"><b>±0.45</b><span>average error on a 0 to 10 scale</span></div>
+  </div>
+
+  <section>
+    <h2>1. Income and social support matter most</h2>
+    <p>Six factors explain about 70% of the happiness gap between countries. To compare factors measured in different units, each was put on the same scale. GDP per capita leads, but having people to count on is a close second, ahead of health and freedom.</p>
+    <div class="card">
+      <h3>What predicts a country's happiness</h3>
+      <p class="sub">Standardized effect in a linear regression (bigger = stronger link)</p>
+      <div class="legend"><span><i style="background:var(--pos)"></i>Raises happiness</span><span><i style="background:var(--neg)"></i>Lowers happiness</span></div>
+      <div id="drivers"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Some regions are happier than their economics predict</h2>
+    <p>Every country was predicted using models trained without it. The gap between actual and predicted happiness shows who beats expectations. Latin America stands out, matching what researchers call the "Latin American happiness paradox."</p>
+    <div class="card">
+      <h3>Happiness beyond what the model predicts, by region</h3>
+      <p class="sub">Actual minus predicted life satisfaction (0 to 10 scale)</p>
+      <div class="legend"><span><i style="background:var(--pos)"></i>Happier than predicted</span><span><i style="background:var(--neg)"></i>Less happy than predicted</span></div>
+      <div id="regions"></div>
+      <details><summary>Show as table</summary><table id="regionTable"></table></details>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. A Simpson's paradox in inequality</h2>
+    <p>Across all countries, higher income inequality looked linked to slightly <em>higher</em> happiness. That turned out to be misleading. Latin America is both very unequal and unusually happy, which masked the real pattern. Compare countries within the same region and the relationship flips.</p>
+    <div class="paradox">
+      <div class="pcard"><div class="k">All countries</div><div class="n up">+0.09</div><div class="t">Inequality's effect on happiness</div><span class="tag up">Looks positive</span></div>
+      <div class="pcard"><div class="k">Latin America removed</div><div class="n down">−0.11</div><div class="t">Correlation with happiness gap</div><span class="tag down">Flips negative</span></div>
+      <div class="pcard"><div class="k">Within the same region</div><div class="n down">−0.10</div><div class="t">Effect, controlling for region</div><span class="tag down">More inequality, less happiness</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>4. Simpler won</h2>
+    <p>A more flexible random forest model did not beat plain linear regression, which suggests the relationships are mostly straight-line. Adding region to the model raised accuracy further.</p>
+    <div class="card">
+      <h3>Model accuracy on unseen countries</h3>
+      <p class="sub">R², share of happiness differences explained (higher is better). "Linear + region" uses 5-fold country cross-validation.</p>
+      <div id="models"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How it was built</h2>
+    <div class="cols">
+      <ul class="clean">
+        <li><b>Country-grouped validation.</b> Models were always tested on countries they never trained on, so they couldn't memorize a country from other years.</li>
+        <li><b>Standardized coefficients</b> to compare factors measured in different units.</li>
+        <li><b>Residual analysis</b> to find who is happier or less happy than predicted.</li>
+        <li><b>Region controls</b> to test whether inequality's effect changes within regions.</li>
+      </ul>
+      <ul class="clean">
+        <li><b>Data:</b> World Happiness Report panel (2005 to 2024) and World Bank Gini index, pulled through the World Bank API.</li>
+        <li><b>Limitations:</b> results show correlation, not causation. Inequality is averaged over 2000 to 2024 and missing for some countries, and happiness is self-reported.</li>
+      </ul>
+    </div>
+    <div class="chips" style="margin-top:16px">
+      <span class="chip">Python</span><span class="chip">pandas</span><span class="chip">scikit-learn</span><span class="chip">matplotlib</span><span class="chip">seaborn</span><span class="chip">Google Colab</span><span class="chip">World Bank API</span>
+    </div>
+  </section>
+
+  <footer>
+    <span>Rita Campos · Economics &amp; Psychology, Northeastern University</span>
+    <a href="https://github.com/ritaqcampos-tech/world-happiness-model">GitHub repository</a>
+  </footer>
+</div>
+<div id="tip"></div>
+<script>
+const tip=document.getElementById('tip');
+function showTip(e,t){tip.textContent=t;tip.style.opacity=1;tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-28)+'px'}
+function hideTip(){tip.style.opacity=0}
+const fmt=v=>(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(2);
+
+function hbars(el,data,opts){
+  const W=Math.max(300,el.clientWidth||760),narrow=W<520,rowH=32,labW=narrow?(opts.labWs||120):(opts.labW||200),valW=48,top=8;
+  const H=top+data.length*rowH+24;
+  const min=Math.min(0,...data.map(d=>d.v)),max=Math.max(0,...data.map(d=>d.v));
+  const x0=labW+(min<0?52:10), x1=W-valW;
+  const sc=v=>x0+(v-min)/(max-min)*(x1-x0);
+  const zero=sc(0);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${opts.aria}">`;
+  let tk=opts.ticks||[];if(narrow&&tk.length>3)tk=[...new Set([tk[0],0,tk[tk.length-1]])];tk.forEach(t=>{s+=`<line class="gridl" x1="${sc(t)}" x2="${sc(t)}" y1="${top}" y2="${H-20}"/><text class="lbl" x="${sc(t)}" y="${H-4}" text-anchor="middle" style="font-size:11px">${opts.tickFmt?opts.tickFmt(t):t}</text>`});
+  data.forEach((d,i)=>{
+    const y=top+i*rowH, bh=18, by=y+(rowH-bh)/2;
+    const a=sc(Math.min(0,d.v)), b=sc(Math.max(0,d.v)), w=Math.max(2,b-a);
+    const col=d.color||(d.v>=0?'var(--pos)':'var(--neg)');
+    const r=Math.min(4,w/2);
+    let path;
+    if(d.v>=0){path=`M${a},${by} H${a+w-r} Q${a+w},${by} ${a+w},${by+r} V${by+bh-r} Q${a+w},${by+bh} ${a+w-r},${by+bh} H${a} Z`}
+    else{path=`M${b},${by} H${a+r} Q${a},${by} ${a},${by+r} V${by+bh-r} Q${a},${by+bh} ${a+r},${by+bh} H${b} Z`}
+    s+=`<text class="lbl" x="${labW}" y="${y+rowH/2+4}" text-anchor="end">${d.k}</text>`;
+    s+=`<path class="bar" d="${path}" fill="${col}"/>`;
+    const vx=d.v>=0?a+w+6:a-6, anchor=d.v>=0?'start':'end';
+    s+=`<text class="val" x="${vx}" y="${y+rowH/2+4}" text-anchor="${anchor}">${opts.valFmt(d.v)}</text>`;
+    s+=`<rect x="0" y="${y}" width="${W}" height="${rowH}" fill="transparent" data-t="${d.k}: ${opts.valFmt(d.v)}${opts.tipSuffix||''}"/>`;
+  });
+  s+=`<line class="axis" x1="${zero}" x2="${zero}" y1="${top}" y2="${H-20}"/></svg>`;
+  el.innerHTML=s;
+  el.querySelectorAll('rect[data-t]').forEach(r=>{r.addEventListener('mousemove',e=>showTip(e,r.dataset.t));r.addEventListener('mouseleave',hideTip)});
+}
+
+function renderAll(){
+hbars(document.getElementById('drivers'),[
+  {k:'GDP per capita',v:.488},{k:'Social support',v:.316},{k:'Freedom',v:.161},
+  {k:'Healthy life expectancy',v:.145},{k:'Generosity',v:.114},{k:'Perceived corruption',v:-.122}
+],{aria:'Standardized effect of six factors on happiness',valFmt:v=>fmt(v),ticks:[-.1,0,.1,.2,.3,.4,.5],tickFmt:t=>t.toFixed(1),labW:170,labWs:130});
+
+const regions=[
+  ['Latin America & Caribbean',.40],['North America & ANZ',.28],['Western Europe',.12],
+  ['South Asia',-.06],['Sub-Saharan Africa',-.07],['Middle East & N. Africa',-.12],
+  ['Former Soviet states (CIS)',-.14],['Central & Eastern Europe',-.18],['East Asia',-.25],['Southeast Asia',-.39]
+].map(([k,v])=>({k,v}));
+hbars(document.getElementById('regions'),regions,{aria:'Happiness gap by region',valFmt:v=>fmt(v),ticks:[-.4,-.2,0,.2,.4],tickFmt:t=>t===0?'0':fmt(t),labW:200,labWs:150,tipSuffix:' points'});
+document.getElementById('regionTable').innerHTML=regions.map(d=>`<tr><td>${d.k}</td><td>${fmt(d.v)}</td></tr>`).join('');
+
+hbars(document.getElementById('models'),[
+  {k:'Linear + region',v:.734,color:'var(--accent)'},{k:'Linear regression',v:.682,color:'var(--accent)'},{k:'Random forest',v:.661,color:'var(--mid)'}
+],{aria:'Model accuracy comparison',valFmt:v=>v.toFixed(2),ticks:[0,.2,.4,.6,.8],tickFmt:t=>t.toFixed(1),labW:150,labWs:120});
+}
+renderAll();let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(renderAll,120)});
+</script>
+</body>
+</html>
